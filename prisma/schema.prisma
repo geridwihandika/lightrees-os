@@ -1,0 +1,437 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── AUTH ────────────────────────────────
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(USER)
+  avatarUrl String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  properties Property[]
+  reports    Report[]
+  projects   Project[]
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  MANAGER
+  STAFF
+  USER
+  CLIENT
+}
+
+// ─── CORE: PROPERTY ──────────────────────
+model Property {
+  id          String   @id @default(uuid())
+  name        String
+  type        PropertyType
+  description String?
+  
+  // Location
+  address     String
+  city        String
+  province    String
+  latitude    Float?
+  longitude   Float?
+  
+  // Dimensions
+  landArea    Float    // m²
+  buildingArea Float    // m²
+  floors      Int      @default(1)
+  bedrooms    Int?
+  bathrooms   Int?
+  
+  // Legal
+  certificate CertificateType
+  certNumber  String?
+  zoning      String?
+  
+  // Condition
+  condition   ConditionType
+  yearBuilt   Int?
+  
+  // Financial
+  marketValue   Float    // Rp
+  pricePerM2     Float    // Rp/m²
+  rentalPrice   Float?   // Rp/month
+  rentalYield   Float?   // %
+  
+  // Status
+  status     PropertyStatus @default(AVAILABLE)
+  isFeatured Boolean @default(false)
+  
+  // Relations
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  images     PropertyImage[]
+  analyses   FeasibilityAnalysis[]
+  documents  PropertyDocument[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PropertyType {
+  RUMAH
+  RUKO
+  TANAH
+  GUDANG
+  KOS_KONTRAKAN
+  KANTOR
+  APARTEMEN
+}
+
+enum CertificateType {
+  SHM
+  HGB
+  AJB
+  GIRIK
+  LAINNYA
+}
+
+enum ConditionType {
+  BARU
+  BAIK
+  SEDANG
+  BUTUH_RENOVASI
+  RUSAK
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  SOLD
+  RENTED
+  UNDER_MAINTENANCE
+  PENDING
+}
+
+// ─── FEASIBILITY ANALYSIS ────────────────
+model FeasibilityAnalysis {
+  id          String   @id @default(uuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id])
+  
+  // Input parameters
+  basePricePerM2  Float     // e.g. 15000000
+  locationMultiplier Float  // e.g. 2.5
+  conditionMultiplier Float // e.g. 1.1
+  certMultiplier  Float     // e.g. 1.0
+  
+  // Results
+  marketValue    Float      // Nilai Pasar
+  pricePerM2     Float      // Harga/m²
+  rangeLow       Float      // Range bawah (85%)
+  rangeHigh      Float      // Range atas (115%)
+  annualRental   Float      // Sewa tahunan
+  monthlyRental  Float      // Sewa bulanan
+  operationalCost Float     // Biaya operasional (20%)
+  netPerYear     Float      // Net per tahun
+  roi            Float      // ROI %
+  paybackPeriod  Float      // Tahun balik modal
+  revitalization Float      // Estimasi revitalisasi
+  score          Float      // Skor 0-100
+  status         FeasibilityStatus // LAYAK / PERLU_DIPERTIMBANGKAN / TIDAK_LAYAK
+  riskLevel      RiskLevel  // Rendah / Sedang / Tinggi
+  
+  // Business recommendation
+  businessModel  String?    // Sewa Bulanan / Jual / Sewa+Jual
+  targetMarket   String?    // Tenant akhir / Developer / Investor / Keluarga
+  
+  // AI-generated (optional - via OpenAI)
+  aiInsights     String?    // JSON: array of insight strings
+  aiSummary      String?    // Narrative summary
+  aiConfidence   Float?     // 0-1
+  
+  // Metadata
+  userId     String?
+  createdAt  DateTime @default(now())
+}
+
+enum FeasibilityStatus {
+  LAYAK
+  PERLU_DIPERTIMBANGKAN
+  TIDAK_LAYAK
+}
+
+enum RiskLevel {
+  RENDAH
+  SEDANG
+  TINGGI
+}
+
+// ─── FUNDING ─────────────────────────────
+model FundingApplication {
+  id          String   @id @default(uuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id])
+  
+  amount      Float    // Jumlah pendanaan diminta
+  purpose     String   // Tujuan penggunaan dana
+  type        FundingType
+  status      FundingStatus @default(DRAFT)
+  
+  // Financial details
+  collateral  String?  // Jaminan
+  tenor       Int?     // Bulan
+  interestRate Float?  // %
+  monthlyPayment Float? // Rp/bulan
+  
+  // Documents
+  documents   String?  // JSON: array of document URLs
+  
+  // Tracking
+  userId      String
+  reviewerId  String?
+  notes       String?
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum FundingType {
+  KPR
+  KPA
+  KREDIT_KONSTRUKSI
+  BRIDGING_LOAN
+  JOINT_VENTURE
+  PRIVATE_EQUITY
+  CROWDFUNDING
+}
+
+enum FundingStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  DISBURSED
+  PAID_OFF
+}
+
+// ─── MARKET RESEARCH ─────────────────────
+model MarketResearch {
+  id          String   @id @default(uuid())
+  title       String
+  location    String
+  propertyType PropertyType?
+  
+  // Data
+  avgPricePerM2     Float
+  avgRentalPerMonth  Float
+  avgRentalYield     Float
+  supplyCount        Int
+  demandScore        Float   // 0-100
+  competitorCount    Int
+  
+  // Trends
+  priceTrend         TrendDirection
+  demandTrend        TrendDirection
+  priceGrowth_YoY    Float   // % year-over-year
+  
+  // Metadata
+  dataPoints  Int
+  source      String
+  createdAt   DateTime @default(now())
+  userId      String
+}
+
+enum TrendDirection {
+  UP
+  DOWN
+  STABLE
+}
+
+// ─── AUTOMATION: E-RECEPTION ─────────────
+model Visitor {
+  id          String   @id @default(uuid())
+  name        String
+  phone       String?
+  email       String?
+  idCard      String?   // NIK/KTP
+  
+  // Visit details
+  purpose     String
+  propertyId  String?
+  staffId     String?   // Host
+  
+  // Smart lock (future integration)
+  accessCode  String?
+  accessValidFrom DateTime?
+  accessValidUntil DateTime?
+  accessStatus AccessStatus @default(PENDING)
+  
+  // Tracking
+  checkInAt   DateTime?
+  checkOutAt  DateTime?
+  vehiclePlate String?
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+}
+
+enum AccessStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+// ─── AUTOMATION: ERP ─────────────────────
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  type        ProjectType
+  status      ProjectStatus @default(PLANNING)
+  
+  // Budget
+  totalBudget     Float
+  spentBudget     Float @default(0)
+  
+  // Timeline
+  startDate   DateTime?
+  endDate     DateTime?
+  progress    Float @default(0) // 0-100%
+  
+  // Relations
+  userId      String
+  user        User @relation(fields: [userId], references: [id])
+  properties  Property[]
+  milestones  Milestone[]
+  tasks       Task[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ProjectType {
+  DEVELOPMENT
+  RENOVATION
+  MARKETING
+  OPERATIONAL
+  ACQUISITION
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+model Milestone {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  title       String
+  description String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  order       Int
+  
+  createdAt   DateTime @default(now())
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  title       String
+  description String?
+  assigneeId  String?
+  status      TaskStatus @default(TODO)
+  priority    Priority @default(MEDIUM)
+  dueDate     DateTime?
+  completedAt DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// ─── FINANCIAL REPORTING ─────────────────
+model Report {
+  id          String   @id @default(uuid())
+  title       String
+  type        ReportType
+  period      String   // "2025-Q1", "2025-01"
+  
+  // Data (JSON - structured report data)
+  data        String   // JSON string
+  summary     String?
+  
+  // Metadata
+  userId      String
+  user        User @relation(fields: [userId], references: [id])
+  generatedAt DateTime @default(now())
+}
+
+enum ReportType {
+  PROPERTY_PERFORMANCE
+  FEASIBILITY_SUMMARY
+  FUNDING_STATUS
+  MARKET_RESEARCH
+  PROJECT_PROGRESS
+  ERP_DASHBOARD
+}
+
+// ─── SUPPORTING MODELS ───────────────────
+model PropertyImage {
+  id          String   @id @default(uuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id])
+  url         String
+  alt         String?
+  isPrimary   Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model PropertyDocument {
+  id          String   @id @default(uuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id])
+  name        String
+  type        String   // SHM, IMB, PBB, etc
+  url         String
+  uploadedAt  DateTime @default(now())
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String
+  action      String
+  entity      String   // "property", "funding", etc
+  entityId    String
+  details     String?  // JSON
+  createdAt   DateTime @default(now())
+}
