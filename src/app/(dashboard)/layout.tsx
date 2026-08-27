@@ -31,12 +31,12 @@ export default function DashboardLayout({
       <nav className={`flex flex-col h-screen w-sidebar-width fixed left-0 top-0 bg-surface-container/95 backdrop-blur-xl border-r border-white/10 shadow-xl shadow-secondary/10 py-8 px-gutter z-40 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
         <div className="mb-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-on-primary-container">account_balance</span>
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
+              <span className="material-symbols-outlined text-white">account_balance</span>
             </div>
             <div>
-              <h1 className="font-headline-md text-headline-md font-bold text-primary">Lightrees OS</h1>
-              <p className="font-label-md text-label-md text-on-surface-variant">Management Hub</p>
+              <h1 className="font-headline-md text-headline-md font-black text-primary tracking-tight">Lightrees OS</h1>
+              <p className="font-label-md text-label-md text-on-surface-variant font-medium">Management Hub</p>
             </div>
           </div>
           <button 
