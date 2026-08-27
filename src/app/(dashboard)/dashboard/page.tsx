@@ -12,7 +12,7 @@ export default function Home() {
           Overview
         </h1>
         <p className="font-body-lg text-[18px] text-on-surface-variant font-medium mt-1">
-          Welcome back. Here's what's happening across your properties today.
+          Welcome back. Here&apos;s what&apos;s happening across your properties today.
         </p>
       </header>
 

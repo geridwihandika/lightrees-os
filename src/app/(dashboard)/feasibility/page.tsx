@@ -13,6 +13,7 @@ export default function FeasibilityPage() {
     wa_pemilik: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [result, setResult] = useState<any>(null);
   const [errorWa, setErrorWa] = useState('');
 
@@ -68,7 +69,7 @@ export default function FeasibilityPage() {
       let parsedContent;
       try {
         parsedContent = JSON.parse(responseText);
-      } catch (e) {
+      } catch {
         parsedContent = responseText;
       }
 
@@ -89,7 +90,7 @@ export default function FeasibilityPage() {
         wa_pemilik: ''
       });
 
-    } catch (error) {
+    } catch {
       setResult({
         type: 'error',
         message: 'Terjadi kesalahan saat menghubungi server. Silakan coba beberapa saat lagi.'
