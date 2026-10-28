@@ -3,6 +3,24 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import {
+  Landmark,
+  X,
+  Menu,
+  LayoutDashboard,
+  Building2,
+  Calculator,
+  WalletCards,
+  LineChart,
+  KeyRound,
+  FolderKanban,
+  FileSpreadsheet,
+  Settings,
+  Search,
+  Bell,
+  LogOut,
+  User,
+} from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -17,6 +35,18 @@ export default function DashboardLayout({
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  const navItems = [
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/properties", label: "Properties", icon: Building2 },
+    { href: "/feasibility", label: "Feasibility", icon: Calculator },
+    { href: "/funding", label: "Funding", icon: WalletCards },
+    { href: "/research", label: "Research", icon: LineChart },
+    { href: "/e-reception", label: "E-Reception", icon: KeyRound },
+    { href: "/projects", label: "Projects", icon: FolderKanban },
+    { href: "/reports", label: "Reports", icon: FileSpreadsheet },
+    { href: "/settings", label: "Settings", icon: Settings },
+  ];
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -30,60 +60,43 @@ export default function DashboardLayout({
       {/* SideNavBar */}
       <nav className={`flex flex-col h-screen w-sidebar-width fixed left-0 top-0 bg-surface-container/95 backdrop-blur-xl border-r border-white/10 shadow-xl shadow-secondary/10 py-8 px-gutter z-40 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
         <div className="mb-8 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span className="material-symbols-outlined text-white">account_balance</span>
+          <Link href="/dashboard" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm group-hover:bg-primary-container transition-colors">
+              <Landmark className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="font-headline-md text-headline-md font-black text-primary tracking-tight">Lightrees OS</h1>
               <p className="font-label-md text-label-md text-on-surface-variant font-medium">Management Hub</p>
             </div>
-          </div>
+          </Link>
           <button 
             className="md:hidden p-2 rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors"
             onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
           >
-            <span className="material-symbols-outlined">close</span>
+            <X className="w-5 h-5" />
           </button>
         </div>
         
         <div className="flex-1 overflow-y-auto space-y-1">
-          <Link href="/dashboard" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 ${pathname === '/dashboard' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">dashboard</span>
-            <span className="font-body-md text-body-md">Dashboard</span>
-          </Link>
-          <Link href="/properties" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 ${pathname === '/properties' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">domain</span>
-            <span className="font-body-md text-body-md">Properties</span>
-          </Link>
-          <Link href="/feasibility" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 ${pathname === '/feasibility' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">analytics</span>
-            <span className="font-body-md text-body-md">Feasibility</span>
-          </Link>
-          <Link href="/funding" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 ${pathname === '/funding' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">payments</span>
-            <span className="font-body-md text-body-md">Funding</span>
-          </Link>
-          <Link href="/research" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 ${pathname === '/research' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">search</span>
-            <span className="font-body-md text-body-md">Research</span>
-          </Link>
-          <Link href="/e-reception" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 ${pathname === '/e-reception' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">room_service</span>
-            <span className="font-body-md text-body-md">E-Reception</span>
-          </Link>
-          <Link href="/projects" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 ${pathname === '/projects' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">architecture</span>
-            <span className="font-body-md text-body-md">Projects</span>
-          </Link>
-          <Link href="/reports" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 ${pathname === '/reports' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">assessment</span>
-            <span className="font-body-md text-body-md">Reports</span>
-          </Link>
-          <Link href="/settings" className={`flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-transform duration-200 mt-4 ${pathname === '/settings' ? 'bg-primary-container text-on-primary-container' : 'text-on-surface-variant hover:bg-white/10 hover:scale-102'}`}>
-            <span className="material-symbols-outlined">settings</span>
-            <span className="font-body-md text-body-md">Settings</span>
-          </Link>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                  isActive
+                    ? 'bg-primary text-white shadow-sm font-semibold'
+                    : 'text-on-surface-variant hover:bg-white/40 hover:text-on-surface hover:scale-[1.02]'
+                }`}
+              >
+                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-on-surface-variant'}`} />
+                <span className="font-body-md text-body-md">{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
         
         <Link href="/settings" className="mt-8 pt-4 border-t border-outline-variant flex items-center gap-3 group hover:bg-white/5 p-2 rounded-lg transition-colors cursor-pointer">
@@ -104,30 +117,31 @@ export default function DashboardLayout({
             <button 
               className="md:hidden p-2 rounded-md text-on-surface-variant hover:bg-surface-variant transition-colors"
               onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Open menu"
             >
-              <span className="material-symbols-outlined">menu</span>
+              <Menu className="w-5 h-5" />
             </button>
             <div className="md:hidden">
               <span className="font-headline-md text-headline-lg-mobile font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Lightrees</span>
             </div>
             <div className="hidden md:flex items-center bg-surface-container-lowest border border-outline-variant rounded-full px-4 py-1.5 w-64 focus-within:border-primary transition-colors">
-              <span className="material-symbols-outlined text-on-surface-variant text-[20px] mr-2">search</span>
+              <Search className="w-4 h-4 text-on-surface-variant mr-2 flex-shrink-0" />
               <input type="text" placeholder="Search..." className="bg-transparent border-none outline-none font-body-md text-body-md text-on-surface w-full placeholder:text-outline p-0 focus:ring-0" />
             </div>
           </div>
           <div className="flex items-center gap-1 md:gap-2">
             <button className="md:hidden p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200">
-              <span className="material-symbols-outlined">search</span>
+              <Search className="w-5 h-5" />
             </button>
             <button className="p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 relative group">
-              <span className="material-symbols-outlined">notifications</span>
+              <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-secondary rounded-full border-2 border-surface-container-lowest"></span>
             </button>
             <Link href="/login" className="p-2 rounded-full text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors duration-200 flex items-center group" title="Sign Out">
-              <span className="material-symbols-outlined">logout</span>
+              <LogOut className="w-5 h-5" />
             </Link>
             <Link href="/settings" className="p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 md:hidden">
-              <span className="material-symbols-outlined">account_circle</span>
+              <User className="w-5 h-5" />
             </Link>
           </div>
         </header>
